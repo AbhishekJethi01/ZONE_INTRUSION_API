@@ -3,13 +3,13 @@
 ################################################################################
 
 /.vs
-/ZONE.DOMAIN/bin/Debug/net8.0
+/ZONE.DOMAIN/bin
 /ZONE.DOMAIN/obj
-/ZONE.Entity/bin/Debug/net8.0
+/ZONE.Entity/bin
 /ZONE.Entity/obj
-/ZONE.EntityDto/bin/Debug/net8.0
+/ZONE.EntityDto/bin
 /ZONE.EntityDto/obj
-/ZONE.Repository/bin/Debug/net8.0
+/ZONE.Repository/bin
 /ZONE.Repository/obj
-/ZONE_API/bin/Debug/net8.0
+/ZONE_API/bin
 /ZONE_API/obj
