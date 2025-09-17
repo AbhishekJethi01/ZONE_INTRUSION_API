@@ -1,0 +1,15 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/ZONE.DOMAIN/bin/Debug/net8.0
+/ZONE.DOMAIN/obj
+/ZONE.Entity/bin/Debug/net8.0
+/ZONE.Entity/obj
+/ZONE.EntityDto/bin/Debug/net8.0
+/ZONE.EntityDto/obj
+/ZONE.Repository/bin/Debug/net8.0
+/ZONE.Repository/obj
+/ZONE_API/bin/Debug/net8.0
+/ZONE_API/obj
