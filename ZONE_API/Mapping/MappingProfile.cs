@@ -24,6 +24,8 @@ namespace ZONE_API.Mapping
             CreateMap<UserDetailDto, UserDetail>();
             CreateMap<UserDetail, UserDetailView>();
             CreateMap<UserDetailView, UserDetail>();
+
+            CreateMap<CameraRoi, CameraRoiDto>().ReverseMap();
         }
     }
 }

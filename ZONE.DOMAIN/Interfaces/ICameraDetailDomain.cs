@@ -15,7 +15,7 @@ namespace ZONE.DOMAIN.Interfaces
         Task<List<CameraStatusView>> GetAllCameraStatusesAsync();
         Task<(CameraDetailDto? camera, string message)> GetCameraByName(int? cameraId);
         Task<(CameraDetailDto? result, string message)> CreateCamera(CameraDetailDto cameraDetailDto);
-        Task<(CameraDetailDto? cameraDetailView, string message)> UpdateCamera(int cameraId, CameraDetailDto cameraDetailDto);
-        Task<(bool isDeleted, string message)> DeleteCamera(int? cameraId);
+        Task<(CameraDetailDto? cameraDetailView, string message)> UpdateCamera(int cameraRoiId, CameraDetailDto cameraDetailDto);
+        Task<(bool isDeleted, string message)> DeleteCamera(int? cameraRoiId);
     }
 }
