@@ -9,9 +9,9 @@ namespace ZONE.DOMAIN.Interfaces
 {
     public interface ICameraRoiDomain
     {
-        Task<(CameraRoiDto? cameraRoi, string message)> GetByCamera(int? cameraId);
-        Task<(CameraRoiDto? result, string message)> CreateCameraRoi(CameraRoiDto cameraRoiDto);
-        Task<(CameraRoiDto? cameraRoiView, string message)> UpdateCameraRoi(int cameraId, CameraRoiDto cameraRoiDto);
-        Task<(bool isDeleted, string message)> DeleteCameraRoi(int? cameraId);
+        Task<(List<CameraRoiDto>? cameraRois, string message)> GetByCamera(int? cameraId);
+        Task<(List<CameraRoiDto>? created, string message)> CreateCameraRois(List<CameraRoiDto> cameraRoiDtos);
+        Task<(List<CameraRoiDto>? updated, string message)> UpdateCameraRois(List<CameraRoiDto> cameraRoiDtos);
+        Task<(bool isDeleted, string message)> DeleteCameraRois(List<int> cameraRoiIds);
     }
 }

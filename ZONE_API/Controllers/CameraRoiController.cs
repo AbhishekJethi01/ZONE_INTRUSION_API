@@ -29,93 +29,91 @@ namespace ZONE_API.Controllers
         [HttpGet("GetByCamera")]
         public async Task<IActionResult> GetByCamera([BindRequired, FromQuery] int cameraId)
         {
-            if (cameraId == null && cameraId == 0)
+            if (cameraId <= 0)
             {
                 return BadRequest(new AlprResponse<string>(HttpStatusCode.BadRequest, null, "Invalid cameraId."));
             }
+
             try
             {
-                var (camera, message) = await _cameraRoiDomain.GetByCamera(cameraId);
-                if (camera == null)
+                var (cameraRois, message) = await _cameraRoiDomain.GetByCamera(cameraId);
+
+                if (cameraRois == null || !cameraRois.Any())
                 {
-                    return Ok(new AlprResponse<CameraRoiDto>(HttpStatusCode.NotFound, null, message));
+                    return Ok(new AlprListResponse<List<CameraRoiDto>>(HttpStatusCode.NotFound, cameraRois, 0, message));
                 }
-                return Ok(new AlprResponse<CameraRoiDto>(HttpStatusCode.OK, camera, message));
+
+                return Ok(new AlprListResponse<List<CameraRoiDto>>(HttpStatusCode.OK, cameraRois, 0, message));
             }
             catch (Exception ex)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, new AlprResponse<string>(HttpStatusCode.InternalServerError, null, $"An error occurred: {ex.Message}"));
+                return StatusCode((int)HttpStatusCode.InternalServerError,
+                    new AlprResponse<string>(HttpStatusCode.InternalServerError, null, $"An error occurred: {ex.Message}"));
             }
         }
+
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CameraRoiDto cameraRoiDto)
+        public async Task<IActionResult> BulkCreate([FromBody] List<CameraRoiDto> cameraRois)
         {
-            if (cameraRoiDto == null)
+            if (cameraRois == null || !cameraRois.Any())
                 return BadRequest(new AlprResponse<string>(HttpStatusCode.BadRequest, null, "Camera Roi data is required."));
 
-            if (!ModelState.IsValid)
-                return BadRequest(new AlprResponse<string>(HttpStatusCode.BadRequest, null, "Invalid camera roi data."));
-
             try
             {
-                var (cameraResult, message) = await _cameraRoiDomain.CreateCameraRoi(cameraRoiDto);
+                var (createdList, message) = await _cameraRoiDomain.CreateCameraRois(cameraRois);
 
-                if (cameraResult != null)
-                {
-                    return Ok(new AlprResponse<CameraRoiDto>(HttpStatusCode.OK, cameraResult, message));
-                }
+                if (createdList != null && createdList.Any())
+                    return Ok(new AlprResponse<List<CameraRoiDto>>(HttpStatusCode.OK, createdList, message));
 
-                return Ok(new AlprResponse<CameraRoiDto>(HttpStatusCode.NotFound, cameraResult, message));
+                return StatusCode((int)HttpStatusCode.InternalServerError,
+                    new AlprResponse<string>(HttpStatusCode.InternalServerError, null, message));
             }
             catch (Exception ex)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, new AlprResponse<string>(HttpStatusCode.InternalServerError, null, $"An error occurred: {ex.Message}"));
+                return StatusCode(500,
+                    new AlprResponse<string>(HttpStatusCode.InternalServerError, null, $"An error occurred: {ex.Message}"));
             }
         }
 
 
         [Authorize]
-        [HttpPatch("{cameraId}")]
-        public async Task<IActionResult> Update(int cameraRoiId, [FromBody] CameraRoiDto cameraRoiDto)
+        [HttpPatch]
+        public async Task<IActionResult> BulkUpdate([FromBody] List<CameraRoiDto> cameraRois)
         {
-            if (cameraRoiDto == null)
-            {
-                return BadRequest(new AlprResponse<string>(HttpStatusCode.BadRequest, null, "Invalid data for update."));
-            }
+            if (cameraRois == null || !cameraRois.Any())
+                return BadRequest(new AlprResponse<string>(HttpStatusCode.BadRequest, null, "Invalid bulk update data."));
 
             try
             {
-                var (updatedCamera, message) = await _cameraRoiDomain.UpdateCameraRoi(cameraRoiId, cameraRoiDto);
+                var (updatedList, message) = await _cameraRoiDomain.UpdateCameraRois(cameraRois);
 
-                if (updatedCamera == null)
-                {
+                if (updatedList == null || !updatedList.Any())
                     return NotFound(new AlprResponse<string>(HttpStatusCode.NotFound, null, message));
-                }
 
-                return Ok(new AlprResponse<CameraRoiDto>(HttpStatusCode.OK, updatedCamera, message));
+                return Ok(new AlprResponse<List<CameraRoiDto>>(HttpStatusCode.OK, updatedList, message));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new AlprResponse<string>(HttpStatusCode.InternalServerError, null, "Internal server error: " + ex.Message));
+                return StatusCode(500,
+                    new AlprResponse<string>(HttpStatusCode.InternalServerError, null, "Internal server error: " + ex.Message));
             }
         }
 
         [Authorize]
-        [HttpDelete("{cameraRoiId}")]
-        public async Task<IActionResult> Delete(int cameraRoiId)
+        [HttpDelete]
+        public async Task<IActionResult> BulkDelete([FromBody] List<int> cameraRoiIds)
         {
-            if (cameraRoiId == null || cameraRoiId == 0)
-                return BadRequest(new AlprResponse<string>(HttpStatusCode.BadRequest, null, "Invalid cameraRoiId."));
+            if (cameraRoiIds == null || !cameraRoiIds.Any())
+                return BadRequest(new AlprResponse<string>(HttpStatusCode.BadRequest, null, "Invalid cameraRoiIds for delete."));
 
-            var (isDeleted, message) = await _cameraRoiDomain.DeleteCameraRoi(cameraRoiId);
+            var (isDeleted, message) = await _cameraRoiDomain.DeleteCameraRois(cameraRoiIds);
 
             if (!isDeleted)
                 return NotFound(new AlprResponse<string>(HttpStatusCode.NotFound, null, message));
 
             return Ok(new AlprResponse<string>(HttpStatusCode.OK, null, message));
-
         }
     }
 }

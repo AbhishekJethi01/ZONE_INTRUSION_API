@@ -8,16 +8,10 @@ namespace ZONE.EntityDto.Model
 {
     public class CameraRoiDto
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
-        public int CameraId { get; set; }
+        public int? CameraId { get; set; }
 
-        public int RoiStartPercentageHeight { get; set; }
-
-        public int RoiEndPercentageHeight { get; set; }
-
-        public int RoiStartPercentageWidth { get; set; }
-
-        public int RoiEndPercentageWidth { get; set; }
+        public string? Points { get; set; } = null!;
     }
 }

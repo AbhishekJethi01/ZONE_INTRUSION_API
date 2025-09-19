@@ -32,97 +32,103 @@ namespace ZONE.DOMAIN.Services
             _context = new ZoneDbContext(contextOptions);
             _mapper = mapper;
         }
-        public async Task<(CameraRoiDto? cameraRoi, string message)> GetByCamera(int? cameraId)
+        public async Task<(List<CameraRoiDto>? cameraRois, string message)> GetByCamera(int? cameraId)
         {
             try
             {
-                var cameraEntity = await _repository.CameraRoi.FindAsync(_context, u => u.CameraId == cameraId);
-                var camera = cameraEntity?.FirstOrDefault();
-                if (camera == null)
-                    return (null, "Camera not found.");
+                var cameraEntities = await _repository.CameraRoi.FindAsync(_context, u => u.CameraId == cameraId);
 
-                var cameraDto = _mapper.Map<CameraRoiDto>(camera);
-                return (cameraDto, "Camera retrieved successfully.");
+                if (cameraEntities == null || !cameraEntities.Any())
+                    return (null, "No ROIs found for the camera.");
+
+                var cameraDtos = _mapper.Map<List<CameraRoiDto>>(cameraEntities);
+                return (cameraDtos, "Camera ROIs retrieved successfully.");
             }
             catch (Exception ex)
             {
-                return (null, $"Error retrieving camera: {ex.Message}");
+                return (null, $"Error retrieving camera ROIs: {ex.Message}");
             }
         }
 
-        public async Task<(CameraRoiDto? result, string message)> CreateCameraRoi(CameraRoiDto cameraRoiDto)
+        public async Task<(List<CameraRoiDto>? created, string message)> CreateCameraRois(List<CameraRoiDto> cameraRoiDtos)
         {
             try
             {
-                var newCameraRoi = _mapper.Map<CameraRoi>(cameraRoiDto);
-                //newCameraRoi.RoiStartPercentageWidth = 10;
-                //newCameraRoi.RoiEndPercentageHeight = 90;
-                //newCameraRoi.RoiStartPercentageWidth = 10;
-                //newCameraRoi.RoiEndPercentageWidth = 90;
-                await _repository.CameraRoi.CreateAsync(_context, newCameraRoi);
-                var saveResult = await _repository.CameraRoi.SaveEntityAsync(_context);
-
-                if (saveResult > 0)
-                {
-                    var dto = _mapper.Map<CameraRoiDto>(newCameraRoi);
-                    return (dto, "Camera Roi saved successfully.");
-                }
-
-                return (null, "Unable to save Camera Roi.");
-            }
-            catch (Exception ex)
-            {
-                return (null, $"Error retrieving camera roi: {ex.Message}");
-            }
-        }
-
-        public async Task<(CameraRoiDto? cameraRoiView, string message)> UpdateCameraRoi(int cameraRoiId, CameraRoiDto cameraRoiDto)
-        {
-            try
-            {
-                var cameraEntity = await _repository.CameraRoi.FindAsync(_context, u => u.Id == cameraRoiId);
-                var camera = cameraEntity?.FirstOrDefault();
-                if (camera == null)
-                    return (null, "Camera Roi not found.");
-
-                camera.PatchEntity(cameraRoiDto);
-
-                _repository.CameraRoi.Update(_context, camera);
+                var entities = _mapper.Map<List<CameraRoi>>(cameraRoiDtos);
+                await _repository.CameraRoi.CreateMultipleAsync(_context, entities);
                 var result = await _repository.CameraRoi.SaveEntityAsync(_context);
+
                 if (result > 0)
                 {
-                    var dto = _mapper.Map<CameraRoiDto>(camera);
-                    return (dto, "Camera Roi updated successfully.");
+                    var dtos = _mapper.Map<List<CameraRoiDto>>(entities);
+                    return (dtos, "Camera Rois saved successfully.");
                 }
-                return (null, "Unable to update camera roi.");
+
+                return (null, "Failed to save camera rois.");
             }
             catch (Exception ex)
             {
-                return (null, $"Error retrieving camera roi: {ex.Message}");
+                return (null, $"Error saving camera rois: {ex.Message}");
             }
         }
 
-        public async Task<(bool isDeleted, string message)> DeleteCameraRoi(int? cameraRoiId)
+        public async Task<(List<CameraRoiDto>? updated, string message)> UpdateCameraRois(List<CameraRoiDto> cameraRoiDtos)
         {
             try
             {
-                var cameraEntity = await _repository.CameraRoi.FindAsync(_context, u => u.Id == cameraRoiId);
-                var camera = cameraEntity?.FirstOrDefault();
+                var ids = cameraRoiDtos.Select(x => x.Id).ToList();
+                var existingEntities = await _context.CameraRois.Where(x => ids.Contains(x.Id)).ToListAsync();
 
-                if (camera == null)
-                    return (false, "Camera roi not found.");
+                if (!existingEntities.Any())
+                    return (null, "No camera rois found to update.");
 
-                _repository.CameraRoi.Delete(_context, camera);
-                var result = await _repository.CameraRoi.SaveEntityAsync(_context);
+                foreach (var entity in existingEntities)
+                {
+                    var dto = cameraRoiDtos.First(x => x.Id == entity.Id);
+                    entity.PatchEntity(dto); // Update entity properties
+                }
 
-                return result > 0
-                    ? (true, "Camera roi deleted successfully.")
-                    : (false, "Failed to delete camera roi.");
+                await _context.SaveChangesAsync();
+
+                var updatedDtos = _mapper.Map<List<CameraRoiDto>>(existingEntities);
+                return (updatedDtos, "Camera Rois updated successfully.");
             }
             catch (Exception ex)
             {
-                return (false, $"Error deleting camera roi: {ex.Message}");
+                return (null, $"Error updating camera rois: {ex.Message}");
             }
         }
+
+
+        public async Task<(bool isDeleted, string message)> DeleteCameraRois(List<int> cameraRoiIds)
+        {
+            try
+            {
+                if (cameraRoiIds == null || !cameraRoiIds.Any())
+                    return (false, "No camera roi IDs provided for deletion.");
+
+                // Fetch all matching entities directly from context
+                var entities = await _context.CameraRois
+                    .Where(x => cameraRoiIds.Contains(x.Id))
+                    .ToListAsync();
+
+                if (!entities.Any())
+                    return (false, "No camera rois found to delete.");
+
+                // Remove in bulk
+                _context.CameraRois.RemoveRange(entities);
+
+                var result = await _context.SaveChangesAsync();
+
+                return result > 0
+                    ? (true, "Camera rois deleted successfully.")
+                    : (false, "Failed to delete camera rois.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error deleting camera rois: {ex.Message}");
+            }
+        }
+
     }
 }
