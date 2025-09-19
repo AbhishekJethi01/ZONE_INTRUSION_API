@@ -13,3 +13,5 @@
 /ZONE.Repository/obj
 /ZONE_API/bin
 /ZONE_API/obj
+/ZONE_API/.config
+/ZONE_API/Properties/PublishProfiles
