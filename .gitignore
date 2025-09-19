@@ -14,3 +14,4 @@
 /ZONE_API/bin
 /ZONE_API/obj
 /ZONE_API/Properties/PublishProfiles
+/ZONE_API/.config/dotnet-tools.json
