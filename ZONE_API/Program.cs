@@ -82,16 +82,23 @@ builder.Services.AddDbContext<ZoneDbContext>(options =>
 var app = builder.Build();
 
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+// app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-app.UseCors();
-app.UseHttpsRedirection();
+    c.SwaggerEndpoint("v1/swagger.json", "My API V1");
+    c.RoutePrefix = "swagger"; // optional, default anyway
+});
 
+app.UseRouting();
+app.UseCors();
+//app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
+if (!app.Environment.IsDevelopment())
+{
+    //app.UseHttpsRedirection();
+}
 
 app.MapControllers();
 
