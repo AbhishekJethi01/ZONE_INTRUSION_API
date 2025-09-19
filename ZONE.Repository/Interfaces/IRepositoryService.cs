@@ -12,5 +12,6 @@ namespace ZONE.Repository.Interfaces
         ICameraDetailRepository CameraDetail { get; }
         IObjectTypeRepository ObjectType { get; }
         IUserDetailRepository UserDetail { get; }
+        ICameraRoiRepository CameraRoi { get; }
     }
 }

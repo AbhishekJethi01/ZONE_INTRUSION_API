@@ -18,6 +18,8 @@ public partial class ZoneDbContext : DbContext
 
     public virtual DbSet<CameraDetail> CameraDetails { get; set; }
 
+    public virtual DbSet<CameraRoi> CameraRois { get; set; }
+
     public virtual DbSet<EventDetail> EventDetails { get; set; }
 
     public virtual DbSet<ObjectType> ObjectTypes { get; set; }
@@ -70,6 +72,13 @@ public partial class ZoneDbContext : DbContext
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("URL");
+        });
+
+        modelBuilder.Entity<CameraRoi>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Camera_R__3214EC07C07A8E63");
+
+            entity.ToTable("Camera_ROI");
         });
 
         modelBuilder.Entity<EventDetail>(entity =>

@@ -23,5 +23,8 @@ namespace ZONE.Repository.Services
 
         private IUserDetailRepository _userDetailRepository;
         public IUserDetailRepository UserDetail => _userDetailRepository ?? (_userDetailRepository = new UserDetailRepository(_repositoryContext));
+
+        private ICameraRoiRepository _cameraRoiRepository;
+        public ICameraRoiRepository CameraRoi => _cameraRoiRepository ?? (_cameraRoiRepository = new CameraRoiRepository(_repositoryContext));
     }
 }

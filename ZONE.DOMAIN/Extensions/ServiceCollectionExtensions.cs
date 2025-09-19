@@ -19,6 +19,7 @@ namespace ZONE.DOMAIN.Extensions
             services.AddScoped<ICameraDetailDomain, CameraDetailDomain>();
             services.AddScoped<IObjectTypeDomain, ObjectTypeDoman>();
             services.AddScoped<IUserDetailDomain, UserDetailDomain>();
+            services.AddScoped<ICameraRoiDomain, CameraRoiDomain>();
 
             return services;
         }
